@@ -44,7 +44,7 @@ class balistonmod
                 "Stomach": { "max": 70,  "min": 70 }
             }]
             
-            //remove all meds and nades from standards bots and reduce armors
+            //remove all meds, foods, drinks and nades from standards bots and reduce armors
             switch(botType)
             {
                 case "marksman" :
@@ -88,20 +88,15 @@ class balistonmod
 
         }
 
-        
-
-
 
         //triple the time of the raid
         for(let map in maps)
         {   
             if(map != "base" && maps[map].base.EscapeTimeLimit !== undefined)
             {
-                maps[map].base.EscapeTimeLimit *= 3
+                maps[map].base.EscapeTimeLimit *= 3;
             }        
-        }
-
-        
+        }   
 
         //msgl add all reflex sights : 
         items["6275303a9f372d6ea97f9ec7"]._props.Slots.find(slot => slot._name == "mod_scope")._props.filters[0].Filter = 
@@ -129,13 +124,27 @@ class balistonmod
 
         ];
 
-        //adjust ragfair prices
-        ragfairConfig.dynamic.price.min = 1
-        ragfairConfig.dynamic.price.max = 1
 
-        ragfairConfig.dynamic.offerItemCount.min = 1
-        ragfairConfig.dynamic.offerItemCount.max = 2
+        //adjust some ragfair params
+        ragfairConfig.dynamic.barter.enable = false;
+        ragfairConfig.dynamic.barter.chancePercent = 0;
+        
+        ragfairConfig.dynamic.price.min = 1;
+        ragfairConfig.dynamic.price.max = 1;
 
+        ragfairConfig.dynamic.offerItemCount.min = 1;
+        ragfairConfig.dynamic.offerItemCount.max = 1;
+
+        ragfairConfig.dynamic.stackablePercent.min *= 10;
+        ragfairConfig.dynamic.stackablePercent.max *= 10;
+        ragfairConfig.dynamic.nonStackableCount.min *= 10; 
+        ragfairConfig.dynamic.nonStackableCount.max *= 10; 
+
+        for(let dc in  ragfairConfig.dynamic.condition)
+        {
+            ragfairConfig.dynamic.condition[dc].conditionChance = 0;
+        }
+        
     }
 
 }
