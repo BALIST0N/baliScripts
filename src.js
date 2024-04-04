@@ -56,12 +56,6 @@ class balistonmod
         const globalsPresets = container.resolve("DatabaseServer").getTables().globals["ItemPresets"];
         */
 
-        for(let i = 1;i <= 70;i++ )
-        {   
-            let a = Math.sin( Math.pow(i,0.435 )-1.7 )*50+50
-            console.log("level : "+ i,   Math.round(a*10)  )
-        }
-
         for(let item in items)
         {
             items[item]._props.ExaminedByDefault = true;
