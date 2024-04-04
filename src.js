@@ -4,6 +4,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 class balistonmod 
 {   
+    preAkiLoad(container)
+    {
+        let ragfairConfig = container.resolve("ConfigServer").getConfig("aki-ragfair");
+
+        //adjust some ragfair configs
+        ragfairConfig.dynamic.barter.chancePercent = 0;
+        
+        ragfairConfig.dynamic.offerItemCount.min = 1;
+        ragfairConfig.dynamic.offerItemCount.max = 1;
+
+        ragfairConfig.dynamic.priceRanges.default.min = 1;
+        ragfairConfig.dynamic.priceRanges.default.max = 1;
+
+        ragfairConfig.dynamic.endTimeSeconds = {"min" :30000, "max":36000};
+
+        for(let dc in  ragfairConfig.dynamic.condition)
+        {
+            ragfairConfig.dynamic.condition[dc].conditionChance = 0;
+        }
+
+        ragfairConfig.dynamic.stackablePercent.min *= 10;
+        ragfairConfig.dynamic.stackablePercent.max *= 10;
+
+        ragfairConfig.dynamic.nonStackableCount.min = 100; 
+        ragfairConfig.dynamic.nonStackableCount.max = 1000;
+
+
+        for(let umprice in ragfairConfig.dynamic.unreasonableModPrices)
+        {
+            ragfairConfig.dynamic.unreasonableModPrices[umprice].enabled = false;
+        }
+
+
+    }
 
     postDBLoad(container) 
     {
@@ -12,16 +46,21 @@ class balistonmod
         const items = container.resolve("DatabaseServer").getTables().templates.items;
         const bots =  container.resolve("DatabaseServer").getTables().bots.types;
         const maps = container.resolve("DatabaseServer").getTables().locations;
-        const ragfairConfig = container.resolve("ConfigServer").configs["aki-ragfair"];
-
-        /*const modLoader = container.resolve("PreAkiModLoader"); 
         const handbook = container.resolve("DatabaseServer").getTables().templates.handbook.Items;
         const locales = container.resolve("DatabaseServer").getTables().locales.global;
+        const globals = container.resolve("DatabaseServer").getTables().globals;
+        /*
+        const modLoader = container.resolve("PreAkiModLoader");
         const traders = container.resolve("DatabaseServer").getTables().traders;
         const quests = container.resolve("DatabaseServer").getTables().templates.quests;
         const globalsPresets = container.resolve("DatabaseServer").getTables().globals["ItemPresets"];
         */
 
+        for(let i = 1;i <= 70;i++ )
+        {   
+            let a = Math.sin( Math.pow(i,0.435 )-1.7 )*50+50
+            console.log("level : "+ i,   Math.round(a*10)  )
+        }
 
         for(let item in items)
         {
@@ -29,10 +68,56 @@ class balistonmod
             items[item]._props.CanSellOnRagfair = true;
         }
 
-       
+        
         for(let botType in bots)
         {    
-            //setting default health point of every ai     
+
+            //remove all meds, foods, drinks and nades from standards bots
+            //also remove excessive loot from sptpmc
+            switch(botType)
+            {
+                case "marksman" :
+                case "arenafighter" :
+                case "assault" :
+                case "crazyassaultevent" :
+                case "arenafighterevent" :
+                case "cursedassault" :
+                    bots[botType].generation.items.healing.weights = {"0": 1};
+                    bots[botType].generation.items.drugs.weights = {"0": 1,};
+                    bots[botType].generation.items.stims.weights = {"0": 1,};
+                    bots[botType].generation.items.grenades.weights = {"0": 80,"1": 20};
+
+                    bots[botType].generation.items.vestLoot ??= {"weights": {"0": 99,"1": 1} };
+                    bots[botType].generation.items.vestLoot.weights =   {"0": 99,"1": 1};
+
+                    bots[botType].generation.items.pocketLoot ??= {"weights": {"0": 90,"1": 10} };
+                    bots[botType].generation.items.pocketLoot.weights = {"0": 90,"1": 10};
+
+                    bots[botType].generation.items.backpackLoot ??= {"weights": {"0": 80,"1": 10,"2":8,"3":2} };
+                    bots[botType].generation.items.backpackLoot.weights = {"0": 80,"1": 10,"2":8,"3":2};
+                break;
+
+                case "bear":
+                case "usec":
+                    bots[botType].generation.items.healing.weights = {"0": 80,"1": 20};
+                    bots[botType].generation.items.drugs.weights = {"0": 80,"1": 20};
+                    bots[botType].generation.items.stims.weights = {"0": 95,"1": 5};
+                    bots[botType].generation.items.vestLoot.weights = {"0": 99,"1": 1};
+                    bots[botType].generation.items.pocketLoot.weights = {"0": 90,"1": 10};
+                    bots[botType].generation.items.backpackLoot.weights = {"0": 90,"1": 10};
+                    bots[botType].chances.equipment.Backpack = 10;
+                    bots[botType].chances.equipment.SecondPrimaryWeapon = 0;
+                break;
+
+                case "bosstest":
+                case "followergluharsnipe":
+                case "followertagilla":
+                case "followertest":
+                case "test":
+                    continue;
+            }
+
+            //setting default health point of every ai    
             bots[botType].health.BodyParts= 
             [{
                 "Chest": {"max": 85, "min": 85 },
@@ -43,52 +128,8 @@ class balistonmod
                 "RightLeg": { "max": 65, "min": 65 },
                 "Stomach": { "max": 70,  "min": 70 }
             }]
-            
-            //remove all meds, foods, drinks and nades from standards bots and reduce armors
-            switch(botType)
-            {
-                case "marksman" :
-                case "arenafighter" :
-                case "assault" :
-                case "crazyassaultevent" :
-                case "arenafighterevent" :
-                case "cursedassault" :
-                    bots[botType].generation.items.drugs.max = 0;
-                    bots[botType].generation.items.drugs.min = 0;
-                    bots[botType].generation.items.grenades.max = 0;
-                    bots[botType].generation.items.grenades.min = 0;
-                    bots[botType].generation.items.healing.max = 0;
-                    bots[botType].generation.items.healing.min = 0;
-                    bots[botType].generation.items.stims.max = 0;
-                    bots[botType].generation.items.stims.min = 0;
-
-                    for( let armor in bots[botType].inventory.equipment.ArmorVest)
-                    {
-                        if( items[armor]._props.armorClass > 3 )
-                        {
-                            
-                            delete bots[botType].inventory.equipment.ArmorVest[armor];
-                        }
-                    }
-
-                    let arrayOfitemsToreplace = [];
-                    bots[botType].inventory.items.TacticalVest.forEach(lootVestItem =>
-                    {
-                        if( items[lootVestItem]._name.includes("mag_") || items[lootVestItem]._name.includes("patron_") ) 
-                        {
-                            arrayOfitemsToreplace.push(lootVestItem);
-                        }
-                        
-                    });
-
-                    bots[botType].inventory.items.TacticalVest = arrayOfitemsToreplace;
-
-                break;
-            }
-
         }
-
-
+        
         //triple the time of the raid
         for(let map in maps)
         {   
@@ -98,7 +139,10 @@ class balistonmod
             }        
         }   
 
-        //msgl add all reflex sights : 
+
+        //msgl adjustmensts :
+
+        items["6275303a9f372d6ea97f9ec7"]._props.shotgunDispersion = 2;
         items["6275303a9f372d6ea97f9ec7"]._props.Slots.find(slot => slot._name == "mod_scope")._props.filters[0].Filter = 
         [
             "6284bd5f95250a29bc628a30",
@@ -120,30 +164,45 @@ class balistonmod
             "60a23797a37c940de7062d02",
             "5d2da1e948f035477b1ce2ba",
             "584984812459776a704a82a6",
-            "570fd721d2720bc5458b4596"
+            "570fd721d2720bc5458b4596" ];
 
-        ];
+        //glock 17 sigle firerate to 800
+        items["5a7ae0c351dfba0017554310"]._props.SingleFireRate = 800;
 
-
-        //adjust some ragfair params
-        ragfairConfig.dynamic.barter.enable = false;
-        ragfairConfig.dynamic.barter.chancePercent = 0;
+        //9x18 PBM adjustement
+        items["573719df2459775a626ccbc2"]._props.Damage = 58; 
         
-        ragfairConfig.dynamic.price.min = 1;
-        ragfairConfig.dynamic.price.max = 1;
+        //m576 adjustements
+        items["5ede475339ee016e8c534742"]._props.ProjectileCount = 20;
+        items["5ede475339ee016e8c534742"]._props.buckshotBullets = 20;
+        items["5ede475339ee016e8c534742"]._props.Damage = 48;
 
-        ragfairConfig.dynamic.offerItemCount.min = 1;
-        ragfairConfig.dynamic.offerItemCount.max = 1;
+        //stm-9 fullauto
+        items["60339954d62c9b14ed777c06"]._props.weapFireType = [ "single","fullauto"];
 
-        ragfairConfig.dynamic.stackablePercent.min *= 10;
-        ragfairConfig.dynamic.stackablePercent.max *= 10;
-        ragfairConfig.dynamic.nonStackableCount.min *= 10; 
-        ragfairConfig.dynamic.nonStackableCount.max *= 10; 
+        //mp-153 stock adapter
+        items["5bfe7fb30db8340018089fed"]._props.Slots.find((x) => x._name =="mod_stock")._props.filters[0].Filter.push("5ef1b9f0c64c5d0dfc0571a1");
 
-        for(let dc in  ragfairConfig.dynamic.condition)
+        //new stim item 
+        let stim = require("./stim.json");
+        globals.config.Health.Effects.Stimulator.Buffs["overtakerBuff"] = stim.item._props.effects_health
+        items["overtaker_stim"] = stim.item;
+        handbook.push(stim.handbook);
+
+        for (const [lang, localeData] of Object.entries(locales)) //foreach lang
         {
-            ragfairConfig.dynamic.condition[dc].conditionChance = 0;
+            for (const [entry, text] of Object.entries(stim.locale)) //and for each entry to add in from the locale object
+            {
+                locales[lang][entry] = text;
+            }                
         }
+
+        //CQCM facemask real weight adjustmeent
+        items["657089638db3adca1009f4ca"]._props.Weight = 0.9;
+
+        //waist pouch weight adjustement
+        items["5732ee6a24597719ae0c0281"]._props.Weight = 0.18;
+        
         
     }
 
