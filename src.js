@@ -1,12 +1,14 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require('fs');
 
 class balistonmod 
 {   
     preAkiLoad(container)
     {
         let ragfairConfig = container.resolve("ConfigServer").getConfig("aki-ragfair");
+        let staticRouterModService = container.resolve("StaticRouterModService");
 
         //adjust some ragfair configs
         ragfairConfig.dynamic.barter.chancePercent = 0;
@@ -24,17 +26,40 @@ class balistonmod
             ragfairConfig.dynamic.condition[dc].conditionChance = 0;
         }
 
-        ragfairConfig.dynamic.stackablePercent.min *= 10;
-        ragfairConfig.dynamic.stackablePercent.max *= 10;
-
-        ragfairConfig.dynamic.nonStackableCount.min = 100; 
-        ragfairConfig.dynamic.nonStackableCount.max = 1000;
-
-
         for(let umprice in ragfairConfig.dynamic.unreasonableModPrices)
         {
             ragfairConfig.dynamic.unreasonableModPrices[umprice].enabled = false;
         }
+
+        var money = ["5449016a4bdc2d6f028b456f","5696686a4bdc2da3298b456a","569668774bdc2da2298b4568"];
+
+        //unlimited items
+        staticRouterModService.registerStaticRouter( "StaticRoutePeekingAki",
+            [
+                {
+                    url: "/client/ragfair/find",
+                    action: (url, info, sessionId, output) => 
+                    {
+
+                        let ragfair = JSON.parse(output);
+
+                        ragfair.data.offers.forEach(offer =>
+                        {
+                            if( money.includes( offer.items[0]._tpl) == false && offer.user.avatar == "/files/trader/avatar/unknown.jpg")
+                            {
+                                offer.items[0].upd.StackObjectsCount = 999;
+                                offer.sellInOnePiece = false;
+                                offer.CurrentItemCount = 999;
+                            }
+
+                        });
+                        
+                        return JSON.stringify(ragfair);
+                    }
+                }
+            ],
+            "aki"
+        );
 
 
     }
@@ -49,12 +74,37 @@ class balistonmod
         const handbook = container.resolve("DatabaseServer").getTables().templates.handbook.Items;
         const locales = container.resolve("DatabaseServer").getTables().locales.global;
         const globals = container.resolve("DatabaseServer").getTables().globals;
+        const traders = container.resolve("DatabaseServer").getTables().traders;
+        
         /*
         const modLoader = container.resolve("PreAkiModLoader");
-        const traders = container.resolve("DatabaseServer").getTables().traders;
         const quests = container.resolve("DatabaseServer").getTables().templates.quests;
         const globalsPresets = container.resolve("DatabaseServer").getTables().globals["ItemPresets"];
         */
+
+        for(let trader in traders)
+        {
+            if(traders[trader].assort !== undefined )
+            {
+                traders[trader].assort.items.forEach(assortItem => 
+                {
+                    if( assortItem.upd !== undefined && assortItem.upd.BuyRestrictionMax !== undefined)
+                    {
+                        delete assortItem.upd.BuyRestrictionMax;
+                        delete assortItem.upd.BuyRestrictionCurrent;
+                        assortItem.upd.StackObjectsCount = 999;
+                    }
+                });
+
+            }
+
+            if(traders[trader].questassort !== undefined)
+            {
+                traders[trader].questassort.success = {};
+            }
+
+        }
+
 
         for(let item in items)
         {
@@ -195,7 +245,10 @@ class balistonmod
         items["657089638db3adca1009f4ca"]._props.Weight = 0.9;
 
         //waist pouch weight adjustement
-        items["5732ee6a24597719ae0c0281"]._props.Weight = 0.18;
+        items["5732ee6a24597719ae0c0281"]._props.Weight = 0.2;
+
+        //m12B stock weight adjustement (sv-98)
+        items["624c29ce09cd027dff2f8cd7"]._props.Weight = 0.453
         
         
     }
