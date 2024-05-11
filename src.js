@@ -115,7 +115,6 @@ class balistonmod
         
         for(let botType in bots)
         {    
-
             //remove all meds, foods, drinks and nades from standards bots
             //also remove excessive loot from sptpmc
             switch(botType)
@@ -129,10 +128,16 @@ class balistonmod
                     bots[botType].generation.items.healing.weights = {"0": 1};
                     bots[botType].generation.items.drugs.weights = {"0": 1,};
                     bots[botType].generation.items.stims.weights = {"0": 1,};
-                    bots[botType].generation.items.grenades.weights = {"0": 80,"1": 20};
+                    bots[botType].generation.items.grenades.weights = {"0": 99,"1": 1};
 
                     bots[botType].generation.items.vestLoot ??= {"weights": {"0": 99,"1": 1} };
                     bots[botType].generation.items.vestLoot.weights =   {"0": 99,"1": 1};
+
+                    bots[botType].generation.items.drink ??= {"weights": {"0": 1} };
+                    bots[botType].generation.items.drink.weights =   {"0": 1};
+
+                    bots[botType].generation.items.food ??= {"weights": {"0": 1} };
+                    bots[botType].generation.items.food.weights =   {"0": 1};
 
                     bots[botType].generation.items.pocketLoot ??= {"weights": {"0": 90,"1": 10} };
                     bots[botType].generation.items.pocketLoot.weights = {"0": 90,"1": 10};
@@ -148,7 +153,10 @@ class balistonmod
                     bots[botType].generation.items.stims.weights = {"0": 95,"1": 5};
                     bots[botType].generation.items.vestLoot.weights = {"0": 99,"1": 1};
                     bots[botType].generation.items.pocketLoot.weights = {"0": 90,"1": 10};
+                    bots[botType].generation.items.grenades.weights = {"0": 70,"1": 20,"2": 8,"3": 2}
                     bots[botType].generation.items.backpackLoot.weights = {"0": 90,"1": 10};
+                    bots[botType].generation.items.food.weights =   {"0": 1};
+                    bots[botType].generation.items.drink.weights =   {"0": 1};
                     bots[botType].chances.equipment.Backpack = 10;
                     bots[botType].chances.equipment.SecondPrimaryWeapon = 0;
                 break;
@@ -223,9 +231,11 @@ class balistonmod
 
         //stm-9 fullauto
         items["60339954d62c9b14ed777c06"]._props.weapFireType = [ "single","fullauto"];
-
-        //mp-153 stock adapter
-        items["5bfe7fb30db8340018089fed"]._props.Slots.find((x) => x._name =="mod_stock")._props.filters[0].Filter.push("5ef1b9f0c64c5d0dfc0571a1");
+ 
+        //mp-153 stock adapter + new handguard + 510mm barrel
+        items["5bfe7fb30db8340018089fed"]._props.Slots.find(x => x._name == "mod_stock")._props.filters[0].Filter.push("5ef1b9f0c64c5d0dfc0571a1");
+        items["56dee2bdd2720bc8328b4567"]._props.Slots.find(x => x._name == "mod_handguard")._props.filters[0].Filter.push("55d45f484bdc2d972f8b456d");
+        items["56dee2bdd2720bc8328b4567"]._props.Slots.find(x => x._name == "mod_barrel")._props.filters[0].Filter.push("560835c74bdc2dc8488b456f");
 
         //new stim item 
         let stim = require("./stim.json");
@@ -252,6 +262,9 @@ class balistonmod
         
         
     }
+
+
+
 
 }
 
