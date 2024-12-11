@@ -1,13 +1,13 @@
 { 
   "handbook":
   {
-    "Id": "overtaker_stim",
+    "Id": "67462f9335b5fd3c8ba4bb92",
     "ParentId": "5b47574386f77428ca22b33a",
     "Price": 5000
   },
   "item":{
-    "_id": "overtaker_stim",
-    "_name": "overtaker_stim",
+    "_id": "67462f9335b5fd3c8ba4bb92",
+    "_name": "67462f9335b5fd3c8ba4bb92",
     "_parent": "5448f3a64bdc2d60728b456a",
     "_type": "Item",
     "_props": {
@@ -92,8 +92,8 @@
 
   "locale":
   { 
-    "overtaker_stim Name":"Overtaker Stimulator",
-    "overtaker_stim ShortName":"Ovrtkr",
-    "overtaker_stim Description":"An injector that you will dream of everynight"
+    "67462f9335b5fd3c8ba4bb92 Name":"Overtaker Stimulator",
+    "67462f9335b5fd3c8ba4bb92 ShortName":"Ovrtkr",
+    "67462f9335b5fd3c8ba4bb92 Description":"An injector that you will dream of everynight"
   }
 }
